@@ -31,9 +31,24 @@ env:
   IDE_ARTIFACT_DIR: "packages/03-staq-ide/build-artifacts"
 
 jobs:
-  # ===========================================================================
-  # JOB 1: SECURE MODEL BUILD
-  # ===========================================================================
+  debug-oidc:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Inspect OIDC Token Claims
+        run: |
+          # Request the token from GitHub's runtime
+          ID_TOKEN=$(curl -sLS "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}")
+          
+          echo "--- OIDC Payload (Decoded) ---"
+          # Extract the second part of the JWT (the payload) and decode it
+          echo $ID_TOKEN | cut -d'.' -f2 | base64 -d | jq .
+          
+          echo "--- Verification Check ---"
+          echo "GitHub Repository: ${{ github.repository }}"
+          echo "GitHub Ref: ${{ github.ref }}"
   secure-build-model:
     runs-on: ubuntu-latest
     # Required for AWS OIDC Auth
@@ -70,7 +85,7 @@ jobs:
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: "arn:aws:iam::973213517498:role/github-actions-role"
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -83,9 +98,6 @@ jobs:
             -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} .
           docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }}
 
-  # ===========================================================================
-  # JOB 2: BUILD & PUBLISH ZARF PACKAGES
-  # ===========================================================================
   publish-zarf-packages:
     needs: [secure-build-model]
     runs-on: ubuntu-latest
@@ -113,7 +125,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::973213517498:role/github-actions-role
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Set Version
