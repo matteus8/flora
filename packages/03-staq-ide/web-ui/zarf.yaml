@@ -1,0 +1,28 @@
+kind: ZarfPackageConfig
+metadata:
+  name: ide-web-ui
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Open WebUI Frontend"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: web-ui
+    required: true
+    charts:
+      - name: open-webui
+        namespace: web-ui
+        url: https://helm.openwebui.com
+        version: "8.18.0"
+        valuesFiles:
+          - overrides/values.yaml
+    manifests:
+      - name: web-ui-httproute
+        namespace: web-ui
+        files:
+          - manifests/httproute.yaml
+    images:
+      - ghcr.io/open-webui/open-webui:0.6.40
+      - ghcr.io/open-webui/pipelines:main

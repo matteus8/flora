@@ -1,0 +1,90 @@
+# --- Minimal Observability Configuration (Local Dev) ---
+
+# 1. Grafana
+grafana:
+  adminPassword: "admin"
+  
+  # Persistence: Enabled (Small)
+  persistence:
+    enabled: true
+    size: 2Gi
+    type: pvc
+    accessModes: ["ReadWriteOnce"]
+  
+  # Minimal Resources
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+# 2. Prometheus
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    replicas: 1
+    
+    # Storage (Small)
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+    
+    # Minimal Resources
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    # Disable features to save RAM
+    enableAdminAPI: false
+    walCompression: true
+
+# 3. Alertmanager (Keep enabled, but tiny)
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 50m
+        memory: 64Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+
+# 4. Exporters
+nodeExporter:
+  enabled: false
+  resources:
+    requests: { cpu: 10m, memory: 16Mi }
+    limits: { cpu: 50m, memory: 32Mi }
+
+kubeStateMetrics:
+  enabled: true
+  resources:
+    requests: { cpu: 10m, memory: 32Mi }
+
+# 5. Disable scraping of control plane components 
+# (These usually fail or don't exist in standard K3s setups)
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false

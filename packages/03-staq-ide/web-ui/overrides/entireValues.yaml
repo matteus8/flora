@@ -1,0 +1,343 @@
+replicaCount: 1
+
+image:
+  repository: "ghcr.io/open-webui/open-webui"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  # -- Use a slim version of the Open WebUI image.
+  useSlim: false
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+
+serviceAccount:
+  # -- Enable service account creation.
+  enable: true
+  # -- If create is set to false, set name to existing service account name.
+  create: true
+  # -- Service account name to use.
+  name: "existing-sa"
+  # -- Additional annotations to add to the ServiceAccount.
+  annotations: {}
+  # -- Automount service account token for the Open WebUI pods.
+  automountServiceAccountToken: false
+
+podAnnotations: {}
+podLabels: {}
+extraLabels: {}
+
+podSecurityContext: {}
+
+containerSecurityContext: {}
+
+service:
+  # -- Service type to expose Open WebUI pods to cluster.
+  type: ClusterIP
+  # -- Port to expose Open WebUI service on.
+  port: 80
+  # -- Target port for the Open WebUI container.
+  containerPort: 8080
+  # -- Node port to use if service type is NodePort.
+  nodePort: ""
+  # -- Load balancer class to use if service type is LoadBalancer.
+  loadBalancerClass: ""
+  # -- Additional annotations to add to the Service.
+  annotations: {}
+  # -- Additional custom labels to add to the Service metadata.
+  labels: {}
+
+ingress:
+  # -- Enable Ingress controller for Open WebUI.
+  enabled: false
+  # -- Ingress class to use.
+  class: ""
+  # -- Use appropriate annotations for your Ingress controller.
+  annotations: {}
+  # -- Additional custom labels to add to the Ingress metadata.
+  extraLabels: {}
+  # -- Host for the Ingress record
+  host: "chat.example.com"
+  # -- Additional hosts for the Ingress record
+  additionalHosts: []
+  # -- TLS configuration for the Ingress resource.
+  tls: false
+  # -- TLS secret name for the Ingress record.
+  existingSecret: ""
+
+managedCertificate:
+  # -- Enable GKE Managed Certificate for Ingress TLS.
+  enabled: false
+  # -- Name of the Managed Certificate resource to create.
+  name: "mydomain-chat-cert"
+  # -- Domains to include in the Managed Certificate.
+  domains:
+    - "chat.example.com"
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+strategy: {}
+
+revisionHistoryLimit: 10
+
+priorityClassName: ""
+
+runtimeClassName: ""
+
+hostAliases: []
+
+extraInitContainers: []
+
+extraResources: []
+
+command: []
+
+args: []
+
+extraEnvVars: []
+
+commonEnvVars: []
+
+extraEnvFrom: []
+
+databaseUrl: ""
+
+ollamaUrls: []
+
+ollamaUrlsFromExtraEnv: false
+
+livenessProbe: {}
+
+readinessProbe: {}
+
+startupProbe: {}
+
+persistence:
+  # -- Enable persistence using PVC for Open WebUI data.
+  enabled: true
+  # -- Additional annotations to add to the PVC.
+  annotations: {}
+  # -- Use existingClaim if you want to re-use an existing Open WebUI PVC instead of creating a new one.
+  existingClaim: ""
+  # -- Storage class of the Open WebUI PVC.
+  storageClass: ""
+  # -- If using multiple replicas, you must update accessModes to ReadWriteMany.
+  accessModes:
+    - ReadWriteOnce
+  # -- Size of the Open WebUI PVC.
+  size: "2Gi"
+  # -- Selector to match to get the volume bound to the claim.
+  selector: {}
+  # -- Subdirectory of Open WebUI PVC to mount.
+  subPath: ""
+  # -- Sets the storage provider.
+  provider: "local"
+
+copyAppData:
+  # -- Open WebUI copy-app-data init container command
+  command: []
+  # -- Open WebUI copy-app-data init container arguments
+  args: []
+  # -- Resource requests and limits for the Open WebUI copy-app-data init container.
+  resources: {}
+
+volumes: []
+
+volumeMounts:
+  container: []
+  initContainer: []
+
+clusterDomain: "cluster.local"
+
+logging:
+  # -- Set the global log level.
+  level: ""
+  components:
+    # -- Set the log level for the Main Application Execution component.
+    main: ""
+    # -- Set the log level for the Configuration Management component.
+    config: ""
+    # -- Set the log level for the Database Operations (Peewee) component.
+    db: ""
+    # -- Set the log level for the Ollama Backend Integration component.
+    ollama: ""
+    # -- Set the log level for the OpenAI API Integration component.
+    openai: ""
+    # -- Set the log level for the Model Management component.
+    models: ""
+    # -- Set the log level for the Retrieval-Augmented Generation (RAG) component.
+    rag: ""
+    # -- Set the log level for the Image Generation component.
+    images: ""
+    # -- Set the log level for the Audio processing component.
+    audio: ""
+    # -- Set the log level for the Authentication Webhook component.
+    webhook: ""
+    # -- Set the log level for the ComfyUI Integration component.
+    comfyui: ""
+
+sso:
+  # -- Enable SSO authentication globally.
+  enabled: false
+  # -- Enable account creation when logging in with OAuth.
+  enableSignup: false
+  # -- Allow logging into accounts that match email from OAuth provider.
+  mergeAccountsByEmail: false
+  # -- Enable OAuth group management through access token groups claim.
+  enableGroupManagement: false
+  # -- Enable OAuth role management through access token roles claim.
+  enableRoleManagement: false
+  oidc:
+    # -- Enable OIDC authentication.
+    enabled: false
+    # -- OIDC provider well known URL.
+    providerUrl: ""
+    # -- OIDC client ID.
+    clientId: ""
+    # -- OIDC client secret.
+    clientSecret: ""
+    # -- OICD client secret from existing secret.
+    clientExistingSecret: ""
+    # -- OIDC client secret key from existing secret.
+    clientExistingSecretKey: ""
+    # -- Scopes to request.
+    scopes: "openid email profile"
+    # -- Name of the provider to show on the UI.
+    providerName: "SSO"
+  google:
+    # -- Enable Google OAuth.
+    enabled: false
+    # -- Google OAuth client ID.
+    clientId: ""
+    # -- Google OAuth client secret.
+    clientSecret: ""
+    # -- Google OAuth client secret from existing secret.
+    clientExistingSecret: ""
+    # -- Google OAuth client secret key from existing secret.
+    clientExistingSecretKey: ""
+  github:
+    # -- Enable GitHub OAuth.
+    enabled: false
+    # -- GitHub OAuth client ID.
+    clientId: ""
+    # -- GitHub OAuth client secret.
+    clientSecret: ""
+    # -- GitHub OAuth client secret from existing secret.
+    clientExistingSecret: ""
+    # -- GitHub OAuth client secret key from existing secret.
+    clientExistingSecretKey: ""
+  microsoft:
+    # -- Enable Microsoft OAuth.
+    enabled: false
+    # -- Microsoft tenant ID.
+    tenantId: ""
+    # -- Microsoft OAuth client ID.
+    clientId: ""
+    # -- Microsoft OAuth client secret.
+    clientSecret: ""
+    # -- Microsoft OAuth client secret from existing secret.
+    clientExistingSecret: ""
+    # -- Microsoft OAuth client secret key from existing secret.
+    clientExistingSecretKey: ""
+  trustedHeader:
+    # -- Enable trusted header authentication.
+    enabled: false
+    # -- Header containing the user's email address.
+    emailHeader: ""
+    # -- Header containing the user's name.
+    nameHeader: ""
+  groupManagement:
+    # -- The claim that contains the groups.
+    groupsClaim: "groups"
+  roleManagement:
+    # -- The claim that contains the roles.
+    rolesClaim: "roles"
+    # -- Comma-separated list of roles allowed to log in.
+    allowedRoles: ""
+    # -- Comma-separated list of roles allowed to log in as admin.
+    adminRoles: ""
+
+ollama:
+  # -- Automatically install Ollama Helm chart.
+  enabled: true
+  # -- If enabling embedded Ollama, update fullnameOverride to your desired Ollama name value.
+  fullnameOverride: "open-webui-ollama"
+
+pipelines:
+  # -- Automatically install Pipelines chart to extend Open WebUI functionality.
+  enabled: true
+  # -- This section can be used to pass required environment variables to your pipelines.
+  extraEnvVars: []
+
+tika:
+  # -- Automatically install Apache Tika to extend Open WebUI.
+  enabled: false
+
+websocket:
+  # -- Enables websocket support in Open WebUI.
+  enabled: false
+  # -- Specifies the websocket manager to use.
+  manager: "redis"
+  # -- Specifies the URL of the Redis instance for websocket communication.
+  url: "redis://open-webui-redis:6379/0"
+  # -- Node selector for websocket pods.
+  nodeSelector: {}
+  redis:
+    # -- Enable redis installation.
+    enabled: true
+    # -- Redis name.
+    name: "open-webui-redis"
+    # -- Redis labels.
+    labels: {}
+    # -- Redis annotations.
+    annotations: {}
+    # -- Redis pod labels.
+    pods:
+      labels: {}
+      annotations: {}
+    # -- Redis image repository.
+    image:
+      repository: "redis"
+      # -- Redis image tag.
+      tag: "7.4.2-alpine3.21"
+      # -- Redis image pull policy.
+      pullPolicy: IfNotPresent
+    # -- Redis command.
+    command: []
+    # -- Redis arguments.
+    args: []
+    # -- Redis container security context.
+    containerSecurityContext: {}
+    # -- Redis pod security context.
+    podSecurityContext: {}
+    # -- Redis resources.
+    resources: {}
+    # -- Redis service type.
+    service:
+      type: "ClusterIP"
+      # -- Redis service port.
+      port: 6379
+      # -- Redis container/target port.
+      containerPort: 6379
+      # -- Redis service port name.
+      portName: "http"
+      # -- Redis service node port.
+      nodePort: ""
+      # -- Redis service labels.
+      labels: {}
+      # -- Redis service annotations.
+      annotations: {}
+    # -- Redis affinity for pod assignment.
+    affinity: {}
+    # -- Redis tolerations for pod assignment.
+    tolerations: []
+
+topologySpreadConstraints: []

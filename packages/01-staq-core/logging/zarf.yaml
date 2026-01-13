@@ -1,0 +1,43 @@
+kind: ZarfPackageConfig
+metadata:
+  name: core-logging
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Module: Logging (Loki + Promtail)"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: logging
+    required: true
+    description: "Loki & Promtail"
+    
+    manifests:
+      - name: logging-setup
+        namespace: logging
+        files:
+          - manifests/httproute.yaml 
+    charts:
+      - name: loki
+        url: https://grafana.github.io/helm-charts
+        version: "6.48.0"
+        namespace: logging
+        valuesFiles:
+          - overrides/values-loki.yaml
+
+      - name: promtail
+        url: https://grafana.github.io/helm-charts
+        version: "6.17.1"
+        namespace: logging
+        valuesFiles:
+          - overrides/values-promtail.yaml
+
+    images:
+      - docker.io/grafana/loki-canary:3.6.2
+      - docker.io/grafana/loki:3.6.2
+      - docker.io/grafana/promtail:3.5.1
+      - docker.io/kiwigrid/k8s-sidecar:1.30.10
+      - docker.io/nginxinc/nginx-unprivileged:1.29-alpine
+      - memcached:1.6.39-alpine
+      - prom/memcached-exporter:v0.15.3

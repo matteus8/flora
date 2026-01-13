@@ -1,0 +1,19 @@
+kind: ZarfPackageConfig
+metadata:
+  name: ide-security
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "SBOMs and Integrity Checks"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: security-data
+    required: true
+    files:
+      # We use ../ because build-artifacts is at the root of 03-staq-ide
+      - source: ../build-artifacts/model-sbom.json
+        target: model-sbom.json
+      - source: ../build-artifacts/image-integrity.txt
+        target: image-integrity.txt

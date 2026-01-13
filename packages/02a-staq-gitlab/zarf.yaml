@@ -1,0 +1,60 @@
+kind: ZarfPackageConfig
+metadata:
+  name: staq-gitlab
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Layer 1: Source Control and CI/CD (GitLab)"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  # -----------------------------------------------------
+  # 1 GITLAB
+  # -----------------------------------------------------
+  - name: gitlab
+    description: "GitLab infrastructure and its associated routing rule."
+    required: true
+    manifests:
+      - name: gitlab-http-route
+        namespace: gitlab
+        files:
+          - gitlab/manifests/httproute.yaml
+    charts:
+      - name: gitlab
+        namespace: gitlab
+        url: https://charts.gitlab.io/
+        version: "9.5.0"
+        valuesFiles:
+          - gitlab/overrides/values.yaml
+    images:
+      - docker.io/bitnamilegacy/postgresql:16.6.0
+      - docker.io/bitnamilegacy/redis:7.2.4-debian-12-r9
+      - minio/mc:RELEASE.2018-07-13T00-53-22Z
+      - minio/minio:RELEASE.2017-12-28T01-21-00Z
+      - registry.gitlab.com/gitlab-org/build/cng/certificates:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitaly:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:v4.27.0-gitlab
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:16.1.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v14.45.3
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v18.5.0
+      - registry.gitlab.com/gitlab-org/build/cng/kubectl:v18.5.0
+      - registry.gitlab.com/gitlab-org/gitlab-runner:alpine-v18.4.0
+      # Cosign artifacts for images - gitlab
+      - registry.gitlab.com/gitlab-org/build/cng/certificates:sha256-0d21af73444fdadf8221b9c160e801d89f3c0bfcb1dacfe7e53461890b120933.sig
+      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:sha256-31df7d7985f22bc16e4836a452556defbbda7a857cabbd9ff692cc9fa7835b7c.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitaly:sha256-cd6a6603f9f8d9e5714f6ba80833b9972239b7433e41b8d3471aa47caadf0e7b.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:sha256-198f0778e746d58a782cec01dc88b2c820ac74d933c7bca63b528e451b6f2872.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:sha256-0555972eea851f001178d5acccdba60a3d586f6b5d9e6e221904f5649cb45d61.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:sha256-52917c96a17fe350dfdc340613db44d49857fa8581a8e164070d6fb7c44a5f15.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:sha256-be607c8d1f763aaf738cf2b919756722a6650b3a48f9a8881014661a8757c884.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:sha256-409111763bed88b9db926869cfa12fe20c58dcfa4806faa1cbdedacb918f4539.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:sha256-4ecdda08afc7e19b23a695ca2e07ff741b911219700f2e0cad83f1ba2045e071.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:sha256-f76f16e83b5be3cfbf9a351027366f3996d5dfca3fe8f7eb757636a56af1eb85.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:sha256-8ace29344eab7199e9bc1cca879fc6810253f602208ff6d57a1eefaa1f579cdd.sig
+      - registry.gitlab.com/gitlab-org/build/cng/kubectl:sha256-036b101d01471a810e163d63141de58cf33ff8c0b0c1099d6cef5cab446cc021.sig

@@ -1,0 +1,19 @@
+kind: ZarfPackageConfig
+metadata:
+  name: staq-factory
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Layer 2: Software Factory Tools (Sonar, Nexus)"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: sonarqube
+    import: { path: ./sonar }
+
+  - name: nexus
+    import: { path: ./nexus }
+  
+  - name: harbor
+    import: { path: ./harbor }

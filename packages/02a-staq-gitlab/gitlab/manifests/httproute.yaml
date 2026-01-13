@@ -1,0 +1,15 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: gitlab-route
+  # The namespace is set by the Zarf component, so it can be omitted here
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: traefik
+  hostnames:
+  - "gitlab.gitlab.local"
+  rules:
+  - backendRefs:
+    - name: gitlab-webservice-default
+      port: 8080

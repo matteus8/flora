@@ -1,0 +1,46 @@
+# ==============================================================================
+# ZARF CONFIGURATION FOR AIR-GAP SIMULATION / PRIVATE MIRROR
+# ==============================================================================
+# PURPOSE:
+# This file forces Zarf to ignore the public internet URLs found in zarf.yaml
+# and pull images from our private AWS ECR mirror instead.
+#
+# USAGE:
+# zarf package create . --zarf-config zarf-config.yaml
+# ==============================================================================
+
+log_format: console
+log_level: info
+
+# Optional: location to cache the heavy layers
+# zarf_cache: ~/.zarf-cache
+
+init:
+  git:
+    enabled: true        
+    push_username: zarf-git-user
+  registry:
+    push_username: zarf-push
+
+package:
+  create:
+    skip_sbom: false 
+    output: "."
+    
+    # --------------------------------------------------------------------------
+    # REGISTRY OVERRIDES
+    # --------------------------------------------------------------------------
+    # CRITICAL: THIS IS BROKEN thus changes to the Makefile  
+    # Zarf interprets the dot (.) as a nested object separator. (e.g. "docker.io")
+    # `zarf dev generate-config test.yaml` will show more
+    # --------------------------------------------------------------------------
+    registry_overrides:
+      "docker.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+      "quay.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+      "registry.k8s.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+      "ghcr.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+      "registry.gitlab.com": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+
+  deploy:
+    retries: 3
+    timeout: 30m0s

@@ -1,0 +1,54 @@
+# --- Minimal Traefik Configuration (Local Dev) ---
+
+# 1. Scaling
+deployment:
+  replicas: 1
+
+# 2. Resources (Tuned for < 512MB RAM goal)
+resources:
+  requests:
+    cpu: "50m"
+    memory: "50Mi"
+  limits:
+    cpu: "300m"
+    memory: "150Mi"
+
+# 3. Networking
+service:
+  type: NodePort
+
+ports:
+  web:
+    port: 8000
+    # Accessible locally at http://localhost:30080 (or node-ip:30080)
+    nodePort: 30080
+  websecure:
+    port: 8443
+    nodePort: 30443
+
+# 4. Providers
+providers:
+  kubernetesGateway:
+    enabled: true
+    experimentalChannel: false
+  kubernetesIngress:
+    enabled: true
+    allowExternalNameServices: false
+  kubernetesCRD:
+    enabled: true
+
+# 5. Security Context
+securityContext:
+  capabilities:
+    drop: [ALL]
+  readOnlyRootFilesystem: true
+  runAsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+
+# 6. Disable Logs for performance
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: false

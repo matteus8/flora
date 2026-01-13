@@ -1,0 +1,36 @@
+kind: ZarfPackageConfig
+metadata:
+  name: harbor
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Harbor Container Registry"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: harbor
+    required: true
+    description: "Harbor Registry (v2.14.1)"
+    manifests:
+      - name: harbor
+        namespace: harbor
+        files:
+          - ./manifests/httproute.yaml
+    charts:
+      - name: harbor
+        url: https://helm.goharbor.io
+        version: "1.18.1"
+        namespace: harbor
+        valuesFiles:
+          - ./overrides/values.yaml
+    images:
+      - goharbor/harbor-core:v2.14.1
+      - goharbor/harbor-db:v2.14.1
+      - goharbor/harbor-jobservice:v2.14.1
+      - goharbor/harbor-portal:v2.14.1
+      - goharbor/harbor-registryctl:v2.14.1
+      - goharbor/nginx-photon:v2.14.1
+      - goharbor/redis-photon:v2.14.1
+      - goharbor/registry-photon:v2.14.1
+      - goharbor/trivy-adapter-photon:v2.14.1

@@ -1,0 +1,15 @@
+# packages/02-staq-factory/nexus/overrides/values.yaml
+
+# 1. Fix Image Pulling
+image:
+  # Must match the "flattened" name in your registry
+  tag: 3.64.0
+  pullPolicy: IfNotPresent
+
+# 2. Network Configuration
+ingress:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 8081

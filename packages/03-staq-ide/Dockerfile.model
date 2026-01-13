@@ -1,0 +1,13 @@
+# Dockerfile.model
+FROM public.ecr.aws/docker/library/alpine:latest
+
+# We expect the CI to pass the scanned model file into the build context
+# and name it 'model.bin' or similar, but we will copy it to a standard
+# path that the Kubernetes Job expects.
+
+# ARGs allow passing the specific filename if you want to keep original names,
+# but standardizing the internal name makes the downstream Job scripts reusable.
+COPY artifact-model.gguf /tinyllama.gguf
+
+# A data container
+CMD ["/bin/true"]

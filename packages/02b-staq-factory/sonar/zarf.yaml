@@ -1,0 +1,28 @@
+kind: ZarfPackageConfig
+metadata:
+  name: factory-sonarqube
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Code Quality & SAST"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: sonarqube
+    required: true
+    manifests:
+      - name: sonarqube-http-route
+        namespace: sonarqube
+        files:
+          - ./manifests/httproute.yaml
+    charts:
+      - name: sonarqube
+        url: https://SonarSource.github.io/helm-chart-sonarqube
+        version: "2025.5.0"
+        namespace: sonarqube
+        valuesFiles:
+          - ./overrides/values.yaml
+    images:
+      - docker.io/bitnamilegacy/postgresql:11.14.0
+      - sonarqube:25.9.0.112764-community

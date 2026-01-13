@@ -1,0 +1,50 @@
+# custom-chart/chatbot/templates/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: ollama-seed-job
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      # 1. INIT CONTAINER: Uses the image we built in Step 1
+      initContainers:
+        - name: model-provider
+          # Use the variable from values.yaml
+          image: "{{ .Values.model.image }}:{{ .Values.model.tag }}"
+          command: ["sh", "-c", "cp /tinyllama.gguf /data/tinyllama.gguf"]
+          volumeMounts:
+            - name: shared-data
+              mountPath: /data
+
+      # 2. MAIN CONTAINER: Moves it to the final PVC
+      containers:
+        - name: model-seeder
+          image: 973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora/library/busybox
+          command:
+            - "sh"
+            - "-c"
+            - |
+              set -ex
+              # Just put it in the root of the volume (which maps to /root/.ollama)
+              MODEL_DEST_DIR="/final-storage"
+              
+              echo "Moving model from shared volume..."
+              mv /transient-data/tinyllama.gguf ${MODEL_DEST_DIR}/tinyllama.gguf
+              echo "✅ Model seeded."
+          volumeMounts:
+            - name: shared-data
+              mountPath: /transient-data
+            - name: ollama-data
+              mountPath: /final-storage
+
+      volumes:
+        # A temporary RAM disk to pass the file between Init and Main container
+        - name: shared-data
+          emptyDir: {}
+        # The actual PVC
+        - name: ollama-data
+          persistentVolumeClaim:
+            claimName: ollama

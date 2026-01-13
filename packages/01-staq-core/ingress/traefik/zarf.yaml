@@ -1,0 +1,44 @@
+kind: ZarfPackageConfig
+metadata:
+  name: core-ingress
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Module: Traefik Ingress and Gateway API"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+
+components:
+  # --- COMPONENT 1: THE CRDS (Must deploy first) ---
+  - name: gateway-api-crd
+    description: "Installs Gateway API Custom Resource Definitions"
+    required: true
+    files:
+      - source: manifests/gateway-api-crd.yaml
+        target: gateway-api-crd.yaml
+    actions:
+      onDeploy:
+        after:
+          # We run this AFTER the file is placed
+          - cmd: kubectl apply -f gateway-api-crd.yaml
+
+  # --- COMPONENT 2: TRAEFIK (Depends on CRDs) ---
+  - name: traefik
+    description: "Deploys the Traefik Ingress Controller with Gateway API enabled"
+    required: true
+    needs: ["gateway-api-crd"] # Comment out for demo
+    charts:
+      - name: traefik
+        namespace: traefik
+        url: https://helm.traefik.io/traefik
+        version: "37.4.0"
+        valuesFiles:
+          - overrides/values.yaml
+    manifests:
+      - name: gateway-infra
+        namespace: traefik
+        files:
+          - manifests/gateway.yaml
+    images:
+      - docker.io/traefik:v3.6.2

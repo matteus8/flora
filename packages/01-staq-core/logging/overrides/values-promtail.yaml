@@ -1,0 +1,13 @@
+# Connect to the Loki instance in the same namespace
+config:
+  clients:
+    - url: http://loki-gateway.logging.svc.cluster.local/loki/api/v1/push
+
+# README REQUIREMENT: Resource Optimization
+resources:
+  requests:
+    cpu: "10m"
+    memory: "32Mi"
+  limits:
+    cpu: "100m"
+    memory: "128Mi"

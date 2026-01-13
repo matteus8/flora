@@ -1,0 +1,40 @@
+kind: ZarfPackageConfig
+metadata:
+  name: core-observability
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Module: Prometheus, Grafana, and AlertManager"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  # COMPONENT 1: Kube Prometheus Stack (Prometheus + Grafana + AlertManager)
+  - name: kube-prometheus-stack
+    description: "Deploys Prometheus, Grafana, and AlertManager via kube-prometheus-stack chart"
+    required: true
+    charts:
+      - name: kube-prometheus-stack
+        namespace: monitoring
+        url: https://prometheus-community.github.io/helm-charts
+        version: "80.2.0"
+        valuesFiles:
+          - overrides/values.yaml
+    manifests:
+      - name: observability-routes
+        namespace: monitoring
+        files:
+          - manifests/httproute.yaml
+    images:
+      - docker.io/bats/bats:v1.4.1
+      - docker.io/grafana/grafana:12.3.0
+      - docker.io/library/busybox:1.31.1
+      - quay.io/kiwigrid/k8s-sidecar:2.1.2
+      - quay.io/prometheus-operator/prometheus-operator:v0.87.0
+      - quay.io/prometheus/node-exporter:v1.10.2
+      - registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.5
+      - registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.17.0
+      - quay.io/prometheus-operator/prometheus-config-reloader:v0.87.0
+      - quay.io/prometheus/alertmanager:v0.29.0
+      - quay.io/prometheus/prometheus:v3.8.0
+      - quay.io/thanos/thanos:v0.40.1

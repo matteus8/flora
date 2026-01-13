@@ -1,0 +1,14 @@
+kind: ZarfPackageConfig
+metadata:
+  name: staq-custom
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Layer Z: You Decide"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  # 1. You Decide What Package To Build With What Components
+  - name: you-pick-which-component
+    import: { path: ./inport/directory/here }

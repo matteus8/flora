@@ -1,0 +1,121 @@
+# SPDX-FileCopyrightText: 2024 Pascaliske
+# SPDX-License-Identifier: Apache-2.0
+
+---
+# -- Controller configuration.
+controller:
+  # -- The number of replicas.
+  replicas: 1
+  # -- The update strategy.
+  strategy: RollingUpdate
+  # -- The rolling update configuration.
+  rollingUpdate:
+    maxSurge: 25%
+    maxUnavailable: 25%
+  # -- Annotations for the controller.
+  annotations: {}
+  # -- Pod annotations.
+  podAnnotations: {}
+  # -- Pod labels.
+  podLabels: {}
+
+# -- Image configuration.
+image:
+  # -- The image repository.
+  repository: codercom/code-server
+  # -- The image pull policy.
+  pullPolicy: IfNotPresent
+  # -- The image tag.
+  tag: ""
+
+# -- Service account configuration.
+serviceAccount:
+  # -- Specifies whether a service account should be created.
+  create: true
+  # -- Annotations for the service account.
+  annotations: {}
+  # -- The name of the service account to use.
+  name: ""
+
+# -- RBAC configuration.
+rbac:
+  # -- Specifies whether RBAC resources should be created.
+  create: true
+  # -- Specifies whether to use a role or cluster role.
+  clusterScoped: false
+
+# -- Pod security context.
+podSecurityContext: {}
+
+# -- Container security context.
+securityContext: {}
+
+# -- Service configuration.
+service:
+  # -- The service type.
+  type: ClusterIP
+  # -- The service port.
+  port: 80
+  # -- The service annotations.
+  annotations: {}
+
+# -- Ingress configuration.
+ingress:
+  # -- Specifies whether an ingress should be created.
+  enabled: false
+  # -- The ingress class name.
+  className: ""
+  # -- The ingress annotations.
+  annotations: {}
+  # -- The ingress hosts.
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  # -- The ingress TLS configuration.
+  tls: []
+
+# -- Resource configuration.
+resources: {}
+
+# -- Autoscaling configuration.
+autoscaling:
+  # -- Specifies whether autoscaling should be enabled.
+  enabled: false
+  # -- The minimum number of replicas.
+  minReplicas: 1
+  # -- The maximum number of replicas.
+  maxReplicas: 100
+  # -- The target CPU utilization percentage.
+  targetCPUUtilizationPercentage: 80
+
+# -- Node selector configuration.
+nodeSelector: {}
+
+# -- Tolerations configuration.
+tolerations: []
+
+# -- Affinity configuration.
+affinity: {}
+
+# -- Pod disruption budget configuration.
+podDisruptionBudget:
+  # -- Specifies whether a pod disruption budget should be created.
+  enabled: false
+  # -- The minimum number of available pods.
+  minAvailable: 1
+
+# -- Network policy configuration.
+networkPolicy:
+  # -- Specifies whether a network policy should be created.
+  enabled: false
+  # -- The policy types.
+  policyTypes:
+    - Ingress
+    - Egress
+
+# -- Test configuration.
+test:
+  # -- Specifies whether the test should be enabled.
+  enabled: true

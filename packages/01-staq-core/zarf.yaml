@@ -1,0 +1,27 @@
+kind: ZarfPackageConfig
+metadata:
+  name: staq-core
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Layer 1: Networking, Observability, and Logging"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  # 1. Ingress (Traefik)
+  - name: traefik
+    import: { path: ./ingress/traefik }
+  
+  # 2. Observability (Prometheus Stack)
+  - name: kube-prometheus-stack
+    import: { path: ./observability }
+
+  # 3. Certificate Management
+  - name: cert-manager
+    import: { path: ./cert-manager }
+
+  # 4. Logging (Loki & Promtail)
+  - name: logging
+    import: { path: ./logging }
+    required: false

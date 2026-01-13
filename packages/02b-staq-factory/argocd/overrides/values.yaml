@@ -1,0 +1,24 @@
+server:
+  extraArgs:
+    - --insecure # Run server on HTTP (Traefik handles HTTPS termination)
+  
+  # Using Gateway API/Traefik, no need for the built-in ingress or route
+  ingress:
+    enabled: false
+  route:
+    enabled: false
+
+# Disable HA for simple installations, consider setting to true later
+redis-ha:
+  enabled: false
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 1
+
+redis:
+  image:
+    repository: public.ecr.aws/docker/library/redis
+    tag: 7.2.4-alpine

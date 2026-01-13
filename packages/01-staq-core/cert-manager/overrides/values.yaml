@@ -1,0 +1,50 @@
+# --- Minimal Cert-Manager Config ---
+
+# 1. CRDs (Essential)
+installCRDs: true
+
+# 2. Scaling (Single Replica for Low Resource usage)
+replicaCount: 1
+
+webhook:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+cainjector:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+startupapicheck:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: 50m
+      memory: 32Mi
+
+# 3. Controller Resources
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 128Mi
+
+# 4. Disable Prometheus Metrics to save sidecar RAM (Optional)
+# If you want metrics, set this to true. For strictly <512MB total cluster overhead, false is safer.
+prometheus:
+  enabled: false

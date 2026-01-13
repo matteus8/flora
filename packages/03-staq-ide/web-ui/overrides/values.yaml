@@ -1,0 +1,40 @@
+# overrides/web-ui/values.yaml
+
+# 1. DISABLE BUNDLED OLLAMA
+# We use the external one in the 'chatbot' namespace
+ollama:
+  enabled: false
+
+# 2. CONNECT TO EXTERNAL OLLAMA & ENABLE API
+extraEnvVars:
+  - name: OLLAMA_BASE_URLS
+    value: "http://ollama.chatbot.svc.cluster.local:11434"
+  # FIX: Force the UI to look for an external Ollama
+  - name: ENABLE_OLLAMA_API
+    value: "true"
+
+# 3. CONFIGURE WEB-UI IMAGE (Zarf Path)
+image:
+  tag: "0.6.40"
+  pullPolicy: IfNotPresent
+
+# 4. CONFIGURE PIPELINES IMAGE (Zarf Path)
+pipelines:
+  enabled: true
+  image:
+    tag: "main"
+    pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+
+# 5. PERSISTENCE
+# let Helm create the default PVC automatically
+persistence:
+  enabled: true
+  storageClass: "local-path"
+  size: 5Gi

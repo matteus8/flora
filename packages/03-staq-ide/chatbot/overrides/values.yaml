@@ -1,0 +1,19 @@
+fullnameOverride: "ollama"
+replicaCount: 0
+
+# Configure Ollama to use our manual PVC
+persistentVolume:
+  enabled: true
+  existingClaim: "ollama" # <--- IMPORTANT: Match the name in pvc.yaml
+
+ingress:
+  enabled: false
+
+model:
+  image: "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora/models/tinyllama"
+  tag: "1.1b-v2"
+
+image:
+  repository: "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora/ollama/ollama"
+  tag: "0.13.0"
+  pullPolicy: IfNotPresent

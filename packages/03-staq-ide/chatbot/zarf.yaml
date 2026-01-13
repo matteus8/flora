@@ -1,0 +1,44 @@
+kind: ZarfPackageConfig
+metadata:
+  name: ide-chatbot
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Ollama AI Backend and Model Seeding"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  - name: chatbot
+    required: true
+    manifests:
+      - name: chatbot-pvc
+        namespace: chatbot
+        files:
+          - manifests/pvc.yaml
+          - manifests/httproute.yaml
+    charts:
+      # Main App
+      - name: ollama
+        namespace: chatbot
+        url: https://helm.otwld.com/
+        version: "1.35.0"
+        valuesFiles:
+          - overrides/values.yaml
+      # Seed Job (Local Chart)
+      - name: ollama-seed-job
+        namespace: chatbot
+        releaseName: ollama-seed-job
+        localPath: charts/ollama-seed-job # Relative to this folder
+        version: "0.1.0"
+        valuesFiles:
+          - overrides/values.yaml
+    images:
+      - 973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora/models/tinyllama:1.1b-v2
+      - busybox
+      - ollama/ollama:0.13.0
+    
+    actions:
+      onDeploy:
+        after:
+          - cmd: kubectl wait --for=condition=complete job/ollama-seed-job -n chatbot --timeout=600s

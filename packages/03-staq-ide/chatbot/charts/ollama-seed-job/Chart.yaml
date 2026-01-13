@@ -1,0 +1,4 @@
+apiVersion: v2
+name: ollama-seed-job
+description: A Helm chart to seed the Ollama model from a Zarf file into a PVC.
+version: 0.1.0

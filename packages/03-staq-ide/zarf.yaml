@@ -1,0 +1,26 @@
+kind: ZarfPackageConfig
+metadata:
+  name: staq-ide
+  version: "###ZARF_PKG_TMPL_PACKAGE_VERSION###"
+  description: "Layer 3: Secure Developer Environment with AI"
+
+variables:
+  - name: PACKAGE_VERSION
+    default: "0.0.1"
+
+components:
+  # 1. IDE
+  - name: code-server
+    import: { path: ./code-server }
+
+  # 2. AI Backend
+  - name: chatbot
+    import: { path: ./chatbot }
+
+  # 3. AI Frontend
+  - name: web-ui
+    import: { path: ./web-ui }
+
+  # 4. Compliance
+  - name: security-data
+    import: { path: ./security }

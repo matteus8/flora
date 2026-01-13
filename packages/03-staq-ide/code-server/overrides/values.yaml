@@ -1,0 +1,9 @@
+# This file is for overriding the default values of the code-server helm chart.
+# For a full list of values, see entireValues.yaml.
+
+ingress:
+  enabled: false
+
+secret:
+  # -- The password for the code-server instance. This is a mandatory field.
+  password: "a-secure-password-here"
