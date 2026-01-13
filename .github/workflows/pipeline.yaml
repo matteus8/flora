@@ -1,24 +1,10 @@
-name: Platform STAQ - Model & CLI Orchestrator
+name: Platform STAQ - Zarf Package Orchestrator
 
 # -----------------------------------------------------------------------------
-# LOGICAL FLOW DESCRIPTION:
-#
-# 1. QUALITY & SECURITY GATE (Prerequisites):
-#    - Validates AI Model integrity via 'modelaudit'.
-#    - Builds a hardened Docker image containing the GGUF model.
-#    - Conditional execution: Skips model builds if only documentation changes.
-#
-# 2. SEMANTIC VERSIONING & RELEASE (Release Strategy):
-#    - Logic: Uses Git Tags (v*) for production releases, or Short SHA for dev builds.
-#    - Compiles the Go-based CLI and packages it via Zarf OCI artifacts.
-#
-# 3. SECURE CLOUD INTEGRATION (AWS Auth):
-#    - Uses GitHub OIDC to assume an AWS IAM Role (no static AWS keys).
-#    - Pushes artifacts to Amazon ECR.
-#
-# 4. DOCUMENTATION & PAGES (Website):
-#    - Builds the Node.js documentation site.
-#    - Deploys automatically to GitHub Pages on main branch updates.
+# LOGICAL FLOW:
+# 1. SECURE MODEL BUILD: Hardens the GGUF model into a Docker image
+# 2. ZARF PACKAGE BUILD: Packages the K8s manifests/charts into Zarf OCI artifacts
+# 3. OCI PUBLISH: Pushes Zarf packages directly to Amazon ECR
 # -----------------------------------------------------------------------------
 
 on:
@@ -29,12 +15,12 @@ on:
     branches: [ main ]
 
 env:
-  # GLOBAL SETTINGS
   ZARF_VERSION: "v0.67.0"
   AWS_REGION: "us-east-2"
   AWS_ACCOUNT_ID: "973213517498"
   ECR_REGISTRY: "973213517498.dkr.ecr.us-east-2.amazonaws.com"
-  CI_REGISTRY_IMAGE: "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+  # Base path for Zarf OCI artifacts
+  OCI_BASE: "oci://973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
   
   # MODEL CONFIGURATION
   MODEL_URL: "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf"
@@ -53,8 +39,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    # Mirroring GitLab logic: Skip if ONLY docs changed
-    if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'docs:')
     steps:
       - uses: actions/checkout@v6
 
@@ -93,148 +77,61 @@ jobs:
 
       - name: Build and Push Model Image
         run: |
-          docker pull ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} || true
           docker build \
-            --cache-from ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} \
             -f packages/03-staq-ide/Dockerfile.model \
             -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} .
           docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }}
-          
-          echo "Model Image Digest:" > ${{ env.IDE_ARTIFACT_DIR }}/image-integrity.txt
-          docker inspect --format='{{.RepoDigests}}' ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} >> ${{ env.IDE_ARTIFACT_DIR }}/image-integrity.txt
-
-      - name: Upload Security Artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: security-artifacts
-          path: ${{ env.IDE_ARTIFACT_DIR }}/
-          retention-days: 1
 
   # ===========================================================================
-  # JOB 2: PRODUCE RELEASE (Go & Zarf)
+  # JOB 2: BUILD & PUBLISH ZARF PACKAGES
   # ===========================================================================
-  produce-release:
+  publish-zarf-packages:
     needs: [secure-build-model]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+    strategy:
+      # Build all packages in parallel
+      matrix:
+        package-path: [
+          "packages/01-staq-core",
+          "packages/02a-staq-gitlab",
+          "packages/02b-staq-factory",
+          "packages/03-staq-ide",
+          "packages/04-staq-custom"
+        ]
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.23'
-
-      - name: Install Zarf & AWS CLI
+      - name: Install Zarf
         run: |
           curl -sL "https://github.com/zarf-dev/zarf/releases/download/${{ env.ZARF_VERSION }}/zarf_${{ env.ZARF_VERSION }}_Linux_amd64" -o /usr/local/bin/zarf
           chmod +x /usr/local/bin/zarf
 
-      - name: Configure AWS Credentials (OIDC)
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-actions-role
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set Version Logic
+      - name: Set Version
         id: vars
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           else
-            echo "VERSION=1.0.0-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+            echo "VERSION=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build OCI Release
+      - name: Zarf Login & Publish
         run: |
+          # Log Zarf into ECR
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | zarf tools registry login ${{ env.ECR_REGISTRY }} -u AWS --password-stdin
-          make release-oci VERSION="${{ steps.vars.outputs.VERSION }}" REGISTRY=${{ env.CI_REGISTRY_IMAGE }}
-
-      - name: Upload CLI Binaries
-        uses: actions/upload-artifact@v6
-        with:
-          name: staq-cli-${{ steps.vars.outputs.VERSION }}
-          path: dist/platformstaq-v*/staq
-
-  # ===========================================================================
-  # JOB 3: DOCUMENTATION (GitHub Pages)
-  # ===========================================================================
-  documentation:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, 'docs:')
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      
-      - name: Build Site
-        run: |
-          cd cli-docs
-          npm ci
-          npm run build
-      
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: cli-docs/public
-
-  deploy-docs:
-    needs: documentation
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-  # ===========================================================================
-  # JOB 4: GITHUB RELEASE PAGE
-  # ===========================================================================
-  create-release:
-    needs: [produce-release]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v6
-      
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v7
-        with:
-          pattern: staq-cli-*
-          merge-multiple: true
-          path: release-assets
-
-      - name: Generate Release Notes
-        run: |
-          cat <<EOF > release_notes.md
-          ## Platform STAQ Release ${{ github.ref_name }}
           
-          ### Installation
-          1. **Download** the \`staq\` CLI from assets.
-          2. **Login** to ECR:
-             \`\`\`bash
-             aws ecr get-login-password --region ${{ env.AWS_REGION }} | ./staq tools registry login ${{ env.CI_REGISTRY_IMAGE }} -u AWS --password-stdin
-             \`\`\`
-          3. **Deploy**:
-             \`\`\`bash
-             ./staq deploy oci://${{ env.CI_REGISTRY_IMAGE }}/staq-core:${{ github.ref_name }}
-             \`\`\`
-          EOF
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: release_notes.md
-          files: release-assets/**/*
-          tag_name: ${{ github.ref_name }}
+          # Create and Publish package directly to ECR as an OCI artifact
+          # This ignores the CLI build and focuses on the Zarf definition
+          zarf package create ${{ matrix.package-path }} \
+            --set VERSION="${{ steps.vars.outputs.VERSION }}" \
+            --output ${{ env.OCI_BASE }} \
+            --confirm
