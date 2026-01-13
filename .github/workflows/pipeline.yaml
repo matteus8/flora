@@ -56,11 +56,11 @@ jobs:
     # Mirroring GitLab logic: Skip if ONLY docs changed
     if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'docs:')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache AI Model Artifacts
         id: cache-model
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.IDE_ARTIFACT_DIR }}/${{ env.MODEL_FILENAME }}
           key: model-tinyllama-1.1b
@@ -74,7 +74,7 @@ jobs:
         run: |
           TARGET_PATH="${{ env.IDE_ARTIFACT_DIR }}/${{ env.MODEL_FILENAME }}"
           if [ ! -f "$TARGET_PATH" ]; then
-            echo "⬇️ Downloading Model..."
+            echo "Downloading Model..."
             curl -fL "${{ env.MODEL_URL }}" -o "$TARGET_PATH"
           fi
           # Ensure reproducible timestamps
@@ -83,7 +83,7 @@ jobs:
           modelaudit scan "$TARGET_PATH" --strict --sbom ${{ env.IDE_ARTIFACT_DIR }}/model-sbom.json --format json
 
       - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-actions-role
           aws-region: ${{ env.AWS_REGION }}
@@ -104,7 +104,7 @@ jobs:
           docker inspect --format='{{.RepoDigests}}' ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} >> ${{ env.IDE_ARTIFACT_DIR }}/image-integrity.txt
 
       - name: Upload Security Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: security-artifacts
           path: ${{ env.IDE_ARTIFACT_DIR }}/
@@ -120,10 +120,10 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '1.23'
 
@@ -133,7 +133,7 @@ jobs:
           chmod +x /usr/local/bin/zarf
 
       - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-actions-role
           aws-region: ${{ env.AWS_REGION }}
@@ -153,7 +153,7 @@ jobs:
           make release-oci VERSION="${{ steps.vars.outputs.VERSION }}" REGISTRY=${{ env.CI_REGISTRY_IMAGE }}
 
       - name: Upload CLI Binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: staq-cli-${{ steps.vars.outputs.VERSION }}
           path: dist/platformstaq-v*/staq
@@ -165,7 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, 'docs:')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -206,10 +206,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: staq-cli-*
           merge-multiple: true
