@@ -21,7 +21,7 @@ env:
   ECR_REGISTRY: "973213517498.dkr.ecr.us-east-2.amazonaws.com"
   # Base path for Zarf OCI artifacts
   OCI_BASE: "oci://973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
-  AWS_ROLE_ARN: "arn:aws:iam::973213517498:role/github-actions-role"
+  AWS_ROLE_ARN: "arn:aws:iam::973213517498:role/githubActions-s3-put-artifacts01"
   
   # MODEL CONFIGURATION
   MODEL_URL: "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf"
