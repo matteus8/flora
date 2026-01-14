@@ -20,7 +20,7 @@ env:
   AWS_ACCOUNT_ID: "973213517498"
   ECR_REGISTRY: "973213517498.dkr.ecr.us-east-2.amazonaws.com"
   # Base path for Zarf OCI artifacts
-  OCI_BASE: "oci://973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+  OCI_BASE: "oci://973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai"
   AWS_ROLE_ARN: "arn:aws:iam::973213517498:role/githubActions-s3-put-artifacts01"
   
   # MODEL CONFIGURATION
