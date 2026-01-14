@@ -27,6 +27,16 @@ The platform uses GitHub Actions to automate the transition from source code to 
 3.  **OCI Publishing**: Artifacts are pushed to Amazon ECR using OIDC keyless authentication
 
 ---
+---
+---
+
+> NOTE: For AWS ECR REPOS (or harbor or some other OCI registry - you must create these repos:
+    > - BASE_URL.com/airgap-ai-testing/flora/models/tinyllama,
+    > - BASE_URL.com/airgap-ai-testing/flora/staq-core,
+    > - BASE_URL.com/airgap-ai-testing/flora/staq-custom,
+    > - BASE_URL.com/airgap-ai-testing/flora/staq-factory,
+    > - BASE_URL.com/airgap-ai-testing/flora/staq-gitlab,
+    > - BASE_URL.com/airgap-ai-testing/flora/staq-ide
 
 ## Local Deployment Instructions
 
