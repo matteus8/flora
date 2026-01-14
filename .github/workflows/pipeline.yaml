@@ -58,7 +58,7 @@ jobs:
           if [ ! -f "$TARGET_PATH" ]; then
             echo "Downloading Model..."
             curl -fL "${{ env.MODEL_URL }}" -o "$TARGET_PATH"
-          fii
+          fi
           # Ensure reproducible timestamps
           touch -t 202401010000 "$TARGET_PATH"
           # Perform Security Scan
