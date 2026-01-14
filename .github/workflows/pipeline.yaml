@@ -77,7 +77,9 @@ jobs:
         run: |
           docker build \
             -f packages/03-staq-ide/Dockerfile.model \
-            -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} .
+            -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} \
+            ${{ env.IDE_ARTIFACT_DIR }}
+          
           docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }}
 
   publish-zarf-packages:
