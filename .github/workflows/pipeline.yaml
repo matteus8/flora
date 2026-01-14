@@ -31,24 +31,6 @@ env:
   IDE_ARTIFACT_DIR: "packages/03-staq-ide/build-artifacts"
 
 jobs:
-  debug-oidc:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Inspect OIDC Token Claims
-        run: |
-          # Request the token from GitHub's runtime
-          ID_TOKEN=$(curl -sLS "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}")
-          
-          echo "--- OIDC Payload (Decoded) ---"
-          # Extract the second part of the JWT (the payload) and decode it
-          echo $ID_TOKEN | cut -d'.' -f2 | base64 -d | jq .
-          
-          echo "--- Verification Check ---"
-          echo "GitHub Repository: ${{ github.repository }}"
-          echo "GitHub Ref: ${{ github.ref }}"
   secure-build-model:
     runs-on: ubuntu-latest
     # Required for AWS OIDC Auth
