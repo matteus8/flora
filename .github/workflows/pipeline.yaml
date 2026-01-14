@@ -146,4 +146,5 @@ jobs:
           zarf package create ${{ matrix.package-path }} \
             --set PACKAGE_VERSION="${{ steps.vars.outputs.VERSION }}" \
             --output ${{ env.OCI_BASE }} \
+            --skip-sbom \
             --confirm
