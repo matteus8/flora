@@ -63,6 +63,8 @@ jobs:
           touch -t 202401010000 "$TARGET_PATH"
           # Perform Security Scan
           modelaudit scan "$TARGET_PATH" --strict --sbom ${{ env.IDE_ARTIFACT_DIR }}/model-sbom.json --format json
+          
+          sha256sum "$TARGET_PATH" > ${{ env.IDE_ARTIFACT_DIR }}/image-integrity.txt
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v5
@@ -100,6 +102,13 @@ jobs:
         ]
     steps:
       - uses: actions/checkout@v6
+
+      - name: Download Build Artifacts (IDE only)
+        if: matrix.package-path == 'packages/03-staq-ide'
+        uses: actions/download-artifact@v4
+        with:
+          name: staq-ide-artifacts
+          path: ${{ env.IDE_ARTIFACT_DIR }}
 
       - name: Install Zarf
         run: |
