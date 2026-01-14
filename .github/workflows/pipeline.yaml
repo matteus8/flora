@@ -20,7 +20,7 @@ env:
   AWS_ACCOUNT_ID: "973213517498"
   ECR_REGISTRY: "973213517498.dkr.ecr.us-east-2.amazonaws.com"
   # Base path for Zarf OCI artifacts
-  OCI_BASE: "oci://973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai"
+  OCI_BASE: "oci://973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
   AWS_ROLE_ARN: "arn:aws:iam::973213517498:role/githubActions-s3-put-artifacts01"
   
   # MODEL CONFIGURATION
@@ -58,7 +58,7 @@ jobs:
           if [ ! -f "$TARGET_PATH" ]; then
             echo "Downloading Model..."
             curl -fL "${{ env.MODEL_URL }}" -o "$TARGET_PATH"
-          fi
+          fii
           # Ensure reproducible timestamps
           touch -t 202401010000 "$TARGET_PATH"
           # Perform Security Scan
@@ -127,8 +127,7 @@ jobs:
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | zarf tools registry login ${{ env.ECR_REGISTRY }} -u AWS --password-stdin
           
           # Create and Publish package directly to ECR as an OCI artifact
-          # This ignores the CLI build and focuses on the Zarf definition
           zarf package create ${{ matrix.package-path }} \
-            --set VERSION="${{ steps.vars.outputs.VERSION }}" \
+            --set PACKAGE_VERSION="${{ steps.vars.outputs.VERSION }}" \
             --output ${{ env.OCI_BASE }} \
             --confirm
