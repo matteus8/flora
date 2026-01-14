@@ -84,6 +84,13 @@ jobs:
           
           docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }}
 
+      - name: Upload Build Artifacts for Zarf
+        uses: actions/upload-artifact@v4
+        with:
+          name: staq-ide-artifacts
+          path: ${{ env.IDE_ARTIFACT_DIR }}/
+          retention-days: 1
+
   publish-zarf-packages:
     needs: [secure-build-model]
     runs-on: ubuntu-latest
