@@ -105,7 +105,7 @@ jobs:
           "packages/02a-staq-gitlab",
           "packages/02b-staq-factory",
           "packages/03-staq-ide",
-          "packages/04-staq-custom"
+          # "packages/04-staq-custom"
         ]
     steps:
       - uses: actions/checkout@v6
