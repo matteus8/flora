@@ -1,93 +1,77 @@
-# Flora: Platform STAQ
+# Flora: Platform STAQ Orchestrator
 
-Flora is the repository for **Platform STAQ**, which includes comprehensive, airgap-friendly staq's for development platform builds. It provides a suite of tools including GitLab, ArgoCD, SonarQube, Nexus, and a VS Code-based IDE with AI assistants (Ollama, Open WebUI).
+Flora is a Zarf-based orchestration repository designed to build, harden, and package **Platform STAQ** (Secure Tooling & AI Quarters). It enables the deployment of a full DevOps and AI development suite into air-gapped or highly regulated environments.
 
-## Getting Started
+## Repository Structure
+
+The repository is organized into modular Zarf packages, allowing for a "foundation-first" deployment model.
+
+### Packages (`/packages`)
+
+| Package | Component | Description |
+| :--- | :--- | :--- |
+| **01-staq-core** | **Foundation** | **Mandatory.** Ingress (Traefik), Cert-Manager, Logging (Loki), and Observability (Prometheus). |
+| **02a-staq-gitlab** | **Source Control** | Self-hosted GitLab instance with integrated container registry and runners. |
+| **02b-staq-factory** | **DevSecOps** | Tooling factory including ArgoCD, Nexus, SonarQube, and Harbor. |
+| **03-staq-ide** | **AI Workspace** | Code-Server (VS Code), Ollama (AI Chatbot), and hardened AI models. |
+| **04-staq-custom** | **User Stack** | A template for cherry-picking specific components for a bespoke deployment. |
+
+---
+
+## CI/CD Pipeline logic
+
+The platform uses GitHub Actions to automate the transition from source code to airgap-ready OCI artifacts:
+
+1.  **Model Hardening**: (See `packages/03-staq-ide/Dockerfile.model`) The pipeline downloads raw GGUF models, performs a security scan, and wraps them into a hardened data-container image
+2.  **Package Creation**: Zarf bundles Kubernetes manifests, Helm charts, and images into OCI artifacts
+3.  **OCI Publishing**: Artifacts are pushed to Amazon ECR using OIDC keyless authentication
+
+---
+
+## Local Deployment Instructions
 
 ### Prerequisites
-- Linux (AMD64)
-- Docker (for building)
-- [Zarf](https://zarf.dev) (optional, if not using the `staq` CLI wrapper)
+*   [Zarf CLI](https://zarf.dev) installed locally
+*   Access to a Kubernetes cluster (K8's or K3's)
+*   (Optional) AWS CLI configured for ECR access
 
-## Components
-
-There are 4 comonents. YOU MUST INSTALL the first `1` as this is the foundation. The others are all optional, you can install them independatly of option `1`.
-1.  **Core** (`this is mandatory`):  
-    - The base Kubernetes layer (cert-manager, ingress, logging, observability) you can read more [here](./packages/01-staq-core/README.md).
-2. **Gitlab and/or Factory** (`optional`)
-    - (A) **GitLab**: A self-hosted GitLab instance with runners.
-    - (B) **Factory**: External DevOps tools (ArgoCD, Nexus, SonarQube, Harbor).
-3.  **Integrated Development Environment (IDE)** (`optional`) 
-    - A developer workspace with Code-Server (web based VS-Code) and AI model (tinyllama:1.1b-v2).
-4. **Customize**: and save with liberty mutual (`optional`)
-    - Cherry pick services from this entire repo and build your own staq
-      > NOTE: Size contraints should be considered when developing a custom package.
-
-## Using the CLI (`staq`)
-
-This project includes a custom CLI wrapper called `staq` (built from the `cli/` directory). It simplifies the deployment and management of the platform.
-> NOTE: The staq CLI is just a wrapper for [zarf](https://docs.zarf.dev/)
-
-### Building the CLI Wrapper
+### 1. Authenticate to the Registry
 ```bash
-make build-cli
-# This will create/provide you the cli --- "staq-linux-amd64"
+aws ecr get-login-password --region us-east-2 | zarf tools registry login <AWS_ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com -u AWS --password-stdin
 ```
 
-### Deploying the Platform
-You can then deploy packages directly from the OCI registry using the `staq` cli:
-
-```markdown
-# Login to the registry
-`./staq tools registry login <AWS-URL> -u <user> -p <token>`
-
-# Deploy Core
-# Change the version of staq core
-`./staq deploy oci://<AWS-URL>/airgap-ai-testing/flora/staq-core:vx.x.x`
+### 2. Deploy the Foundation (Core)
+The Core package must be deployed before any other services
+```bash
+zarf package deploy oci://<AWS_URL>/airgap-ai-testing/flora/staq-core:<VERSION> --confirm
 ```
 
-## Release Process
+### 3. Deploy the AI Workspace (IDE)
+Includes the hardened AI model and web-based VS Code environment.
+```bash
+zarf package deploy oci://<AWS_URL>/airgap-ai-testing/flora/staq-ide:<VERSION> --confirm
+```
 
-Releases are automated via GitLab CI/CD.
+---
 
-1.  **Development**: Push changes to `main`.
-2.  **Release**:
-    *   Before cutting a **GitLab Release**. You **must** update the release page. This page is is created with downloadable links and instructions - these instructions can and should be updated before each release. You can update those instructions [here](.gitlab-ci.yml#L148). Once you are happy with the release notes...
-    *   Create a tag: `git tag -a v1.0.X -m "Release v1.0.X"`
-    *   Push the tag: `git push origin v1.0.X` --- see which version we are on before cutting.
-3.  **Artifacts**:
-    *   The pipeline builds the Zarf/Staq packages and streams them to the **AWS ECR** (OCI).
-    *   Instructions and the downloadable CLI are then cut and released on the [release page](https://gitlab.com/airgap-ai-testing/flora/-/releases).
+## Airgap Preparation
 
-## Airgap Usage
+To move this platform into a disconnected environment:
 
-For air-gapped environments where you cannot access `AWS ECR`:
-
-1.  **Download the Packages**:
-    On a connected machine, pull the packages to local files:
+1.  **Pull the artifacts** on a connected machine:
     ```bash
-    # THE BASELINE
-    ./staq package pull oci://<AWS-URL/airgap-ai-testing/flora/staq-core:vx.x.x
-    
-    # THE ADDITONS
-    ./staq package pull oci://<AWS-URL/airgap-ai-testing/flora/staq-<PACKAGE-NAME>:vx.x.x
+    zarf package pull oci://<AWS_URL>/airgap-ai-testing/flora/staq-core:<VERSION>
+    zarf package pull oci://<AWS_URL>/airgap-ai-testing/flora/staq-ide:<VERSION>
     ```
-    This will pull down the core package locally as well as anything else you need.
-
-2.  **Transfer**: Move the `.tar.zst` files and the `staq` binary to your air-gapped machine.
-
-3.  **Deploy**:
+2.  **Transfer** the resulting `.tar.zst` files to the airgapped network
+3.  **Initialize** the airgap cluster:
     ```bash
-    # AUTHENTICATE TO THE CLUSTER OR ENSURE YOU ARE ON THE RIGHT CLUSTER
-    
-    kubectl config -h
-    kubectl config get-contexts
-
-    kubectl config set-context <cluster you want> --user=cluster-admin
-
-    # DEPLOY THE BASELINE
-    ./staq deploy zarf-package-staq-core-amd64-vx.x.x.tar.zst
-
-    # DEPLOY THE ADDITONS
-    ./staq deploy zarf-package-staq-<service>-amd64-vx.x.x.tar.zst
+    zarf init
     ```
+4.  **Deploy locally**:
+    ```bash
+    zarf package deploy zarf-package-staq-core-amd64-<VERSION>.tar.zst
+    ```
+
+---
+**Note:** For custom configurations, refer to the `zarf-config.yaml` at the root of the repository to set global deployment variables
