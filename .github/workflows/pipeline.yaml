@@ -38,6 +38,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune --all --force 2>/dev/null || true
+
       - name: Cache AI Model Artifacts
         id: cache-model
         uses: actions/cache@v5
@@ -110,6 +115,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Free Disk Space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune --all --force 2>/dev/null || true
+          echo "Disk space after cleanup:"
+          df -h /
+
       - name: Download Build Artifacts (IDE only)
         if: matrix.package-path == 'packages/03-staq-ide'
         uses: actions/download-artifact@v4
@@ -174,7 +188,7 @@ jobs:
           name: Platform STAQ Release ${{ github.ref_name }}
           generate_release_notes: false
           body: |
-            Platform STAQ ${{ github.ref_name }} provides a hardened, air-gap-ready DevOps and AI workspace suite built on Zarf. This release packages certified Helm charts, Gateway API networking, DevSecOps factory tooling, and a containerized AI code-server environment for disconnected and regulated Kubernetes clusters.
+            Platform STAQ ${{ github.ref_name }} provides a secure, air-gap-ready DevOps and AI workspace suite built on Zarf. This release packages updated Helm charts, Kubernetes Gateway API networking, DevSecOps factory tooling, and a containerized AI code-server environment for disconnected or regulated Kubernetes clusters, published directly to GitHub Container Registry (GHCR).
 
             | Package / Service | Component | Chart Version | App / Image Version |
             | :--- | :--- | :--- | :--- |
@@ -191,24 +205,24 @@ jobs:
             | **03-staq-ide** | Code-Server (VS Code IDE) | `3.0.0` | `4.100.0` |
             | **03-staq-ide** | Chatbot (Ollama AI Backend) | `1.92.0` | `0.40.11` |
             | **03-staq-ide** | Open WebUI Frontend | `17.0.0` | `0.12.0` |
-            | **03-staq-ide** | AI Language Model | GGUF Container | TinyLlama-1.1B-Chat-v1.0 (`1.1b-v2`) |
+            | **03-staq-ide** | AI Language Model | GGUF Data Container | TinyLlama-1.1B-Chat-v1.0 (`1.1b-v2`) |
             | **04-staq-custom** | User Bespoke Stack | Template | Custom cherry-picked components |
 
-            ### Quickstart: Download & Deploy Packages
+            ### How to Download and Pull Packages into the Cluster
 
             1. **Authenticate to GitHub Container Registry (GHCR):**
                ```bash
                echo "<GITHUB_PAT>" | zarf tools registry login ghcr.io -u <GITHUB_USERNAME> --password-stdin
                ```
-            2. **Pull the air-gap package archives (on an internet-connected workstation):**
+            2. **Download / Pull the packages on a connected machine:**
                ```bash
                zarf package pull oci://ghcr.io/matteus8/flora/staq-core:${{ github.ref_name }}
                zarf package pull oci://ghcr.io/matteus8/flora/staq-gitlab:${{ github.ref_name }}
                zarf package pull oci://ghcr.io/matteus8/flora/staq-factory:${{ github.ref_name }}
                zarf package pull oci://ghcr.io/matteus8/flora/staq-ide:${{ github.ref_name }}
                ```
-            3. **Transfer the resulting `.tar.zst` files into the disconnected air-gap network.**
-            4. **Initialize and deploy into the target Kubernetes cluster:**
+            3. **Transfer the resulting `.tar.zst` files into the air-gapped network.**
+            4. **Deploy directly into your Kubernetes cluster:**
                ```bash
                zarf init --confirm
                zarf package deploy zarf-package-staq-core-*.tar.zst --confirm
