@@ -3,16 +3,21 @@ name: Platform STAQ - Zarf Package Orchestrator
 # -----------------------------------------------------------------------------
 # LOGICAL FLOW:
 # 1. SECURE MODEL BUILD: Hardens the GGUF model into a Docker image
-# 2. ZARF PACKAGE BUILD: Packages the K8s manifests/charts into Zarf OCI artifacts
-# 3. OCI PUBLISH: Pushes Zarf packages directly to Amazon ECR
+# 2. ZARF PACKAGE BUILD: Packages K8s manifests/charts into Zarf OCI artifacts
+# 3. OCI PUBLISH: Pushes packages to Amazon ECR (on main / release tags)
+# 4. GITHUB RELEASE: Generates GitHub Release when a version tag is pushed
 # -----------------------------------------------------------------------------
 
 on:
   push:
-    branches: [ main, 'feat/**', 'fix/**' ]
+    branches: [ main, 'feat/**', 'fix/**', 'release/**' ]
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v') }}
 
 env:
   ZARF_VERSION: "v0.88.0"
@@ -33,7 +38,6 @@ env:
 jobs:
   secure-build-model:
     runs-on: ubuntu-latest
-    # Required for AWS OIDC Auth
     permissions:
       id-token: write
       contents: read
@@ -66,22 +70,35 @@ jobs:
           
           sha256sum "$TARGET_PATH" > ${{ env.IDE_ARTIFACT_DIR }}/image-integrity.txt
 
+      - name: Build Model Container Image
+        run: |
+          docker build \
+            -f packages/03-staq-ide/Dockerfile.model \
+            -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} \
+            ${{ env.IDE_ARTIFACT_DIR }}
+
       - name: Configure AWS Credentials (OIDC)
+        if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
+        if: github.event_name != 'pull_request'
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and Push Model Image
+      - name: Ensure Model ECR Repository Exists
+        if: github.event_name != 'pull_request'
         run: |
-          docker build \
-            -f packages/03-staq-ide/Dockerfile.model \
-            -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} \
-            ${{ env.IDE_ARTIFACT_DIR }}
-          
+          REPO_NAME="airgap-ai-testing/flora/models/tinyllama"
+          echo "Checking ECR repository: $REPO_NAME"
+          aws ecr describe-repositories --repository-names "$REPO_NAME" --region ${{ env.AWS_REGION }} >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ env.AWS_REGION }} --image-scanning-configuration scanOnPush=true || true
+
+      - name: Push Model Image to ECR
+        if: github.event_name != 'pull_request'
+        run: |
           docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }}
 
       - name: Upload Build Artifacts for Zarf
@@ -98,7 +115,7 @@ jobs:
       id-token: write
       contents: read
     strategy:
-      # Build all packages in parallel
+      fail-fast: false
       matrix:
         package-path: [
           "packages/01-staq-core",
@@ -123,6 +140,7 @@ jobs:
           chmod +x /usr/local/bin/zarf
 
       - name: Configure AWS Credentials
+        if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
@@ -133,11 +151,36 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "IS_RELEASE=true" >> $GITHUB_OUTPUT
           else
             echo "VERSION=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+            echo "IS_RELEASE=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Zarf Login & Publish
+      - name: Validate Package (Pull Request)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Linting package definition for ${{ matrix.package-path }}..."
+          zarf dev lint ${{ matrix.package-path }} --set PACKAGE_VERSION="${{ steps.vars.outputs.VERSION }}"
+          echo "Testing local build for ${{ matrix.package-path }}..."
+          zarf package create ${{ matrix.package-path }} \
+            --set PACKAGE_VERSION="${{ steps.vars.outputs.VERSION }}" \
+            --output . \
+            --skip-sbom \
+            --confirm
+
+      - name: Ensure Package ECR Repository Exists
+        if: github.event_name != 'pull_request'
+        run: |
+          PKG_DIR="${{ matrix.package-path }}"
+          PKG_NAME=$(grep -E "^  name: " "$PKG_DIR/zarf.yaml" | head -n 1 | awk '{print $2}' | tr -d '"')
+          REPO_NAME="airgap-ai-testing/flora/${PKG_NAME}"
+          echo "Checking ECR repository: $REPO_NAME"
+          aws ecr describe-repositories --repository-names "$REPO_NAME" --region ${{ env.AWS_REGION }} >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ env.AWS_REGION }} --image-scanning-configuration scanOnPush=true || true
+
+      - name: Zarf Login & Publish to ECR
+        if: github.event_name != 'pull_request'
         run: |
           # Log Zarf into ECR
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | zarf tools registry login ${{ env.ECR_REGISTRY }} -u AWS --password-stdin
@@ -148,3 +191,19 @@ jobs:
             --output ${{ env.OCI_BASE }} \
             --skip-sbom \
             --confirm
+
+  create-release:
+    needs: [publish-zarf-packages]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Platform STAQ Release ${{ github.ref_name }}
+          generate_release_notes: true
