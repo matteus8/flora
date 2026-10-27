@@ -17,7 +17,7 @@ components:
       - name: kube-prometheus-stack
         namespace: monitoring
         url: https://prometheus-community.github.io/helm-charts
-        version: "80.2.0"
+        version: "92.14.1"
         valuesFiles:
           - overrides/values.yaml
     manifests:
@@ -26,15 +26,14 @@ components:
         files:
           - manifests/httproute.yaml
     images:
-      - docker.io/bats/bats:v1.4.1
-      - docker.io/grafana/grafana:12.3.0
-      - docker.io/library/busybox:1.31.1
-      - quay.io/kiwigrid/k8s-sidecar:2.1.2
-      - quay.io/prometheus-operator/prometheus-operator:v0.87.0
-      - quay.io/prometheus/node-exporter:v1.10.2
-      - registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.5
-      - registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.17.0
-      - quay.io/prometheus-operator/prometheus-config-reloader:v0.87.0
-      - quay.io/prometheus/alertmanager:v0.29.0
-      - quay.io/prometheus/prometheus:v3.8.0
-      - quay.io/thanos/thanos:v0.40.1
+      - docker.io/grafana/grafana:13.2.4-distroless
+      - docker.io/library/busybox:1.38.0
+      - ghcr.io/jkroepke/kube-webhook-certgen:1.11.0
+      - quay.io/kiwigrid/k8s-sidecar:2.14.1
+      - quay.io/prometheus-operator/prometheus-operator:v0.94.2
+      - registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+      - quay.io/prometheus-operator/prometheus-config-reloader:v0.94.2
+      - quay.io/prometheus/alertmanager:v0.34.1
+      - quay.io/prometheus/prometheus:v3.15.1-distroless
+      - quay.io/thanos/thanos:v0.42.5
+      - registry.k8s.io/kube-state-metrics/kube-state-metrics:sha256-42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b.sig

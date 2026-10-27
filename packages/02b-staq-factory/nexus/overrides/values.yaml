@@ -2,8 +2,8 @@
 
 # 1. Fix Image Pulling
 image:
-  # Must match the "flattened" name in your registry
-  tag: 3.64.0
+  repository: docker.io/sonatype/nexus3
+  tag: 3.97.3
   pullPolicy: IfNotPresent
 
 # 2. Network Configuration

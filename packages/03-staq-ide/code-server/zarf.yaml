@@ -15,7 +15,7 @@ components:
       - name: code-server
         namespace: code-server
         url: https://pascaliske.github.io/helm-charts
-        version: "2.0.0"
+        version: "3.0.0"
         valuesFiles:
           - overrides/values.yaml # Path is now relative to this folder
     manifests:
@@ -24,5 +24,5 @@ components:
         files:
           - manifests/httproute.yaml
     images:
-      - busybox:latest
-      - ghcr.io/coder/code-server:4.18.0
+      - docker.io/library/busybox:latest
+      - ghcr.io/coder/code-server:4.100.0

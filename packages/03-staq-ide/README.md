@@ -8,9 +8,9 @@ This repository contains the configuration for a Zarf package that creates a sec
 
 This project provides a single Zarf package that deploys a complete, self-contained development environment, including:
 
-*   **Code-Server:** A web-based IDE based on VS Code. Accessible at `http://code-server.localhost:8000`.
-*   **Chatbot (Ollama):** A CPU-based LLM for agentic coding and chatting. The service is available at `http://chatbot.localhost:8000`. By default, it uses the `tinyllama` model.
-*   **Web UI (Open WebUI):** A simple interface for the chatbot. Accessible at `http://web-ui.localhost:8000`.
+*   **Code-Server:** A web-based IDE based on VS Code (code-server v4.100.0). Accessible at `http://code-server.localhost:8000`.
+*   **Chatbot (Ollama):** A CPU-based LLM for agentic coding and chatting (Ollama v0.40.11). The service is available at `http://chatbot.localhost:8000`. By default, it uses the `tinyllama` model.
+*   **Web UI (Open WebUI):** A simple interface for the chatbot (Open WebUI v0.12.0). Accessible at `http://web-ui.localhost:8000`.
 
 All components are deployed in a secure, air-gapped environment, making it suitable for use in highly regulated industries.
 

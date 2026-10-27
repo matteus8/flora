@@ -27,12 +27,11 @@ components:
   - name: traefik
     description: "Deploys the Traefik Ingress Controller with Gateway API enabled"
     required: true
-    needs: ["gateway-api-crd"] # Comment out for demo
     charts:
       - name: traefik
         namespace: traefik
         url: https://helm.traefik.io/traefik
-        version: "37.4.0"
+        version: "42.1.3"
         valuesFiles:
           - overrides/values.yaml
     manifests:
@@ -41,4 +40,4 @@ components:
         files:
           - manifests/gateway.yaml
     images:
-      - docker.io/traefik:v3.6.2
+      - docker.io/traefik:v3.7.16

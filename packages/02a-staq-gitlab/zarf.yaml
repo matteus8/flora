@@ -24,37 +24,43 @@ components:
       - name: gitlab
         namespace: gitlab
         url: https://charts.gitlab.io/
-        version: "9.5.0"
+        version: "9.11.14"
         valuesFiles:
           - gitlab/overrides/values.yaml
     images:
       - docker.io/bitnamilegacy/postgresql:16.6.0
       - docker.io/bitnamilegacy/redis:7.2.4-debian-12-r9
-      - minio/mc:RELEASE.2018-07-13T00-53-22Z
-      - minio/minio:RELEASE.2017-12-28T01-21-00Z
-      - registry.gitlab.com/gitlab-org/build/cng/certificates:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitaly:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:v4.27.0-gitlab
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:16.1.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v14.45.3
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v18.5.0
-      - registry.gitlab.com/gitlab-org/build/cng/kubectl:v18.5.0
-      - registry.gitlab.com/gitlab-org/gitlab-runner:alpine-v18.4.0
-      # Cosign artifacts for images - gitlab
-      - registry.gitlab.com/gitlab-org/build/cng/certificates:sha256-0d21af73444fdadf8221b9c160e801d89f3c0bfcb1dacfe7e53461890b120933.sig
-      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:sha256-31df7d7985f22bc16e4836a452556defbbda7a857cabbd9ff692cc9fa7835b7c.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitaly:sha256-cd6a6603f9f8d9e5714f6ba80833b9972239b7433e41b8d3471aa47caadf0e7b.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:sha256-198f0778e746d58a782cec01dc88b2c820ac74d933c7bca63b528e451b6f2872.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:sha256-0555972eea851f001178d5acccdba60a3d586f6b5d9e6e221904f5649cb45d61.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:sha256-52917c96a17fe350dfdc340613db44d49857fa8581a8e164070d6fb7c44a5f15.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:sha256-be607c8d1f763aaf738cf2b919756722a6650b3a48f9a8881014661a8757c884.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:sha256-409111763bed88b9db926869cfa12fe20c58dcfa4806faa1cbdedacb918f4539.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:sha256-4ecdda08afc7e19b23a695ca2e07ff741b911219700f2e0cad83f1ba2045e071.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:sha256-f76f16e83b5be3cfbf9a351027366f3996d5dfca3fe8f7eb757636a56af1eb85.sig
-      - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:sha256-8ace29344eab7199e9bc1cca879fc6810253f602208ff6d57a1eefaa1f579cdd.sig
-      - registry.gitlab.com/gitlab-org/build/cng/kubectl:sha256-036b101d01471a810e163d63141de58cf33ff8c0b0c1099d6cef5cab446cc021.sig
+      - registry.gitlab.com/gitlab-org/build/cng/certificates:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/gitaly:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:v4.39.0-gitlab
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:16.7.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v14.50.0
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v18.11.13
+      - registry.gitlab.com/gitlab-org/build/cng/kubectl:v18.11.13
+      - registry.gitlab.com/gitlab-org/cloud-native/mirror/images/minio/mc:RELEASE.2018-07-13T00-53-22Z
+      - registry.gitlab.com/gitlab-org/cloud-native/mirror/images/minio/minio:RELEASE.2017-12-28T01-21-00Z
+      - registry.gitlab.com/gitlab-org/gitlab-runner:alpine-v18.11.2
+      - registry.gitlab.com/gitlab-org/build/cng/certificates:sha256-e81e707a644eb261e164a21346ae9736792e37e9acbd5ed362c89c90db0922a0.sig
+      - registry.gitlab.com/gitlab-org/build/cng/certificates:sha256-e81e707a644eb261e164a21346ae9736792e37e9acbd5ed362c89c90db0922a0.att
+      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:sha256-4cc0056fa82c694af5239a967793a634ebaf8bb754696b1275730e40a45b77f6.sig
+      - registry.gitlab.com/gitlab-org/build/cng/cfssl-self-sign:sha256-4cc0056fa82c694af5239a967793a634ebaf8bb754696b1275730e40a45b77f6.att
+      - registry.gitlab.com/gitlab-org/build/cng/gitaly:sha256-6be98e426f2d96001f13d6c4e5e503aa77ed902e58abdadf7164a0a0c97b0884.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitaly:sha256-6be98e426f2d96001f13d6c4e5e503aa77ed902e58abdadf7164a0a0c97b0884.att
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:sha256-948173abff19380da74c323d114f686918c9ff292c23b82a5d423ec1407047cf.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:sha256-7e6f9e4113fc0a57047ea12dc03355f90039963ca13cdae519fce8e06c64bd41.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry:sha256-7e6f9e4113fc0a57047ea12dc03355f90039963ca13cdae519fce8e06c64bd41.att
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:sha256-33ee25e08908f402515bf26df6b10af83776e25e5612c7e66a7217ced90cee41.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:sha256-33ee25e08908f402515bf26df6b10af83776e25e5612c7e66a7217ced90cee41.att
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:sha256-601cba676703265100fb319da3a86d884086a90fe5ddc423407dd09d9c4f2468.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:sha256-601cba676703265100fb319da3a86d884086a90fe5ddc423407dd09d9c4f2468.att
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:sha256-a1bae359ebf7af825b55f1877f1fa57b5b6d8aa45e99472ef8e3d1bb40af8c51.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:sha256-722391c7adcd19e459de9b841645256ea9e0a36d58d27d704adf0f2f3b06079d.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:sha256-b9124da100d99900ce51808b177782d6bbb707b00f48bae4e545c38e47237050.sig
+      - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:sha256-da21adee44160227bee755d2e4492e5460c50aa2ce503f012de527dee8849314.sig
+      - registry.gitlab.com/gitlab-org/build/cng/kubectl:sha256-d7aa4238e528032c79c1c1bf5018ec728beb73ffa41dcbe037ff6c11d7bb907d.sig
+      - registry.gitlab.com/gitlab-org/build/cng/kubectl:sha256-d7aa4238e528032c79c1c1bf5018ec728beb73ffa41dcbe037ff6c11d7bb907d.att

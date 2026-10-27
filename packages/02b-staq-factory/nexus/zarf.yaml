@@ -24,5 +24,4 @@ components:
         valuesFiles:
           - ./overrides/values.yaml
     images:
-      - busybox
-      - sonatype/nexus3:3.64.0
+      - docker.io/sonatype/nexus3:3.97.3

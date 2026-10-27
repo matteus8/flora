@@ -11,7 +11,7 @@ variables:
 components:
   - name: harbor
     required: true
-    description: "Harbor Registry (v2.14.1)"
+    description: "Harbor Registry (v2.15.4)"
     manifests:
       - name: harbor
         namespace: harbor
@@ -20,17 +20,17 @@ components:
     charts:
       - name: harbor
         url: https://helm.goharbor.io
-        version: "1.18.1"
+        version: "1.19.4"
         namespace: harbor
         valuesFiles:
           - ./overrides/values.yaml
     images:
-      - goharbor/harbor-core:v2.14.1
-      - goharbor/harbor-db:v2.14.1
-      - goharbor/harbor-jobservice:v2.14.1
-      - goharbor/harbor-portal:v2.14.1
-      - goharbor/harbor-registryctl:v2.14.1
-      - goharbor/nginx-photon:v2.14.1
-      - goharbor/redis-photon:v2.14.1
-      - goharbor/registry-photon:v2.14.1
-      - goharbor/trivy-adapter-photon:v2.14.1
+      - docker.io/goharbor/harbor-core:v2.15.4
+      - docker.io/goharbor/harbor-db:v2.15.4
+      - docker.io/goharbor/harbor-jobservice:v2.15.4
+      - docker.io/goharbor/harbor-portal:v2.15.4
+      - docker.io/goharbor/harbor-registryctl:v2.15.4
+      - docker.io/goharbor/nginx-photon:v2.15.4
+      - docker.io/goharbor/registry-photon:v2.15.4
+      - docker.io/goharbor/trivy-adapter-photon:v2.15.4
+      - docker.io/goharbor/valkey-photon:v2.15.4

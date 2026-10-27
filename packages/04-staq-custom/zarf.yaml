@@ -11,4 +11,4 @@ variables:
 components:
   # 1. You Decide What Package To Build With What Components
   - name: you-pick-which-component
-    import: { path: ./inport/directory/here }
+    import: { path: ./import/directory/here }

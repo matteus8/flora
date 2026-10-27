@@ -47,8 +47,7 @@ securityContext:
   runAsUser: 65532
 
 # 6. Disable Logs for performance
-logs:
-  general:
-    level: INFO
-  access:
-    enabled: false
+log:
+  level: INFO
+accessLog:
+  enabled: false

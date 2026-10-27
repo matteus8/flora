@@ -19,10 +19,9 @@ components:
     charts:
       - name: sonarqube
         url: https://SonarSource.github.io/helm-chart-sonarqube
-        version: "2025.5.0"
+        version: "2026.5.1003"
         namespace: sonarqube
         valuesFiles:
           - ./overrides/values.yaml
     images:
-      - docker.io/bitnamilegacy/postgresql:11.14.0
-      - sonarqube:25.9.0.112764-community
+      - docker.io/library/sonarqube:26.9.0.129388-community

@@ -6,7 +6,7 @@ This document provides details on the chatbot component of the Flora project.
 
 The chatbot is a simple, CPU-based LLM that provides agentic coding features. It is designed to be lightweight and run in an air-gapped environment.
 
-*   **AI Engine**: The service is powered by Ollama, a lightweight, extensible framework for running large language models locally.
+*   **AI Engine**: The service is powered by Ollama (v0.40.11), a lightweight, extensible framework for running large language models locally.
 *   **Model**: It uses the `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` model, which is a compact model suitable for CPU-based inference.
 
 ## Deployment

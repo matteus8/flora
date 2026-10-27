@@ -12,16 +12,16 @@ components:
   - name: logging
     required: true
     description: "Loki & Promtail"
-    
+
     manifests:
       - name: logging-setup
         namespace: logging
         files:
-          - manifests/httproute.yaml 
+          - manifests/httproute.yaml
     charts:
       - name: loki
         url: https://grafana.github.io/helm-charts
-        version: "6.48.0"
+        version: "7.5.0"
         namespace: logging
         valuesFiles:
           - overrides/values-loki.yaml
@@ -34,10 +34,8 @@ components:
           - overrides/values-promtail.yaml
 
     images:
-      - docker.io/grafana/loki-canary:3.6.2
-      - docker.io/grafana/loki:3.6.2
+      - docker.io/grafana/loki-canary:3.6.16
+      - docker.io/grafana/loki:3.6.11
       - docker.io/grafana/promtail:3.5.1
-      - docker.io/kiwigrid/k8s-sidecar:1.30.10
+      - docker.io/kiwigrid/k8s-sidecar:2.5.0
       - docker.io/nginxinc/nginx-unprivileged:1.29-alpine
-      - memcached:1.6.39-alpine
-      - prom/memcached-exporter:v0.15.3

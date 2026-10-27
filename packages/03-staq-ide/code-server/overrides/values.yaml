@@ -4,6 +4,9 @@
 ingress:
   enabled: false
 
+cronJob:
+  enabled: false
+
 secret:
   # -- The password for the code-server instance. This is a mandatory field.
   password: "a-secure-password-here"

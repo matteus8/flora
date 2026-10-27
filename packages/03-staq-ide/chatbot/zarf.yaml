@@ -22,7 +22,7 @@ components:
       - name: ollama
         namespace: chatbot
         url: https://helm.otwld.com/
-        version: "1.35.0"
+        version: "1.92.0"
         valuesFiles:
           - overrides/values.yaml
       # Seed Job (Local Chart)
@@ -35,9 +35,9 @@ components:
           - overrides/values.yaml
     images:
       - 973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora/models/tinyllama:1.1b-v2
-      - busybox
-      - ollama/ollama:0.13.0
-    
+      - docker.io/library/busybox:latest
+      - docker.io/ollama/ollama:0.40.11
+
     actions:
       onDeploy:
         after:

@@ -15,7 +15,7 @@ on:
     branches: [ main ]
 
 env:
-  ZARF_VERSION: "v0.67.0"
+  ZARF_VERSION: "v0.88.0"
   AWS_REGION: "us-east-2"
   AWS_ACCOUNT_ID: "973213517498"
   ECR_REGISTRY: "973213517498.dkr.ecr.us-east-2.amazonaws.com"

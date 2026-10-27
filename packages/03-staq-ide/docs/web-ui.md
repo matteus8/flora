@@ -12,7 +12,7 @@ This service is provided by the open-source Open WebUI project.
 
 The Web UI is deployed as the `web-ui` component in the `zarf.yaml` package.
 
-*   **Technology**: It uses the `open-webui/open-webui:0.6.40` container image.
+*   **Technology**: It uses the `open-webui/open-webui:0.12.0` container image.
 *   **Configuration**: The Helm chart values are configured to connect the UI to the internal `ollama` service endpoint within the cluster.
 *   **Routing**: An `HTTPRoute` manifest configures the Traefik gateway to route traffic from the `/chat` path to the Open WebUI service.
 

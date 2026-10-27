@@ -42,7 +42,8 @@ httproute:
   enabled: false 
 
 image:
-  tag: 25.9.0.112764-community
+  repository: docker.io/library/sonarqube
+  tag: 26.9.0.129388-community
   pullPolicy: IfNotPresent
 
 # ----------------------------------------------------------------------------

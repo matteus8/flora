@@ -15,7 +15,7 @@ components:
       - name: open-webui
         namespace: web-ui
         url: https://helm.openwebui.com
-        version: "8.18.0"
+        version: "17.0.0"
         valuesFiles:
           - overrides/values.yaml
     manifests:
@@ -24,5 +24,6 @@ components:
         files:
           - manifests/httproute.yaml
     images:
-      - ghcr.io/open-webui/open-webui:0.6.40
+      - ghcr.io/open-webui/open-webui:0.12.0
       - ghcr.io/open-webui/pipelines:main
+      - docker.io/library/redis:7.4.2-alpine3.21

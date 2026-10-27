@@ -22,7 +22,7 @@ spec:
       # 2. MAIN CONTAINER: Moves it to the final PVC
       containers:
         - name: model-seeder
-          image: 973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora/library/busybox
+          image: docker.io/library/busybox:latest
           command:
             - "sh"
             - "-c"

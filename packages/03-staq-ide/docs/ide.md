@@ -12,7 +12,7 @@ The IDE can be extended with plugins to interact with the chatbot, providing fea
 
 The IDE is deployed as the `code-server` component in the `zarf.yaml` package.
 
-*   **Technology**: It uses the `coder/code-server:4.18.0` container image.
+*   **Technology**: It uses the `coder/code-server:4.100.0` container image.
 *   **Namespace**: It is deployed into a dedicated `code-server` namespace.
 *   **Routing**: Access to the IDE is managed by an `HTTPRoute` manifest, which configures the Traefik gateway to route traffic from the `/ide` path to the code-server service.
 

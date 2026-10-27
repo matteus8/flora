@@ -22,12 +22,12 @@ This package uses K3s to establish the core services on a minimal platform. This
 
 ## Core Components Overview
 
-| Component         | Installation Method                                            | Purpose & Rationale |
-| :---              | :---                                                           | :--- |
-| **Ingress-Traefik**| Custom Zarf Component (Helm Chart)                             | Serves as the Ingress Controller with Gateway API enabled. **Requires a LoadBalancer to expose the service.** |
-| **Cert-Manager**  | Separate Zarf Component (Helm Chart)                           | Automates the provisioning and rotation of TLS certificates. **Industry-standard** for robust security. |
-| **Observability** | **Single** Zarf Component (`kube-prometheus-stack` Helm Chart) | Provides the core *metrics* and *dashboarding* capabilities: **Prometheus**, **Grafana**, and **Alertmanager**. |
-| **Logging Stack** | Separate Zarf Component (Loki & Promtail Helm Chart)           | Provides resource-light log collection via **Promtail** and scalable, centralized log storage via **Loki**. |
+| Component         | Installation Method                                            | Purpose & Rationale | Chart / App Version |
+| :---              | :---                                                           | :--- | :--- |
+| **Ingress-Traefik**| Custom Zarf Component (Helm Chart)                             | Serves as the Ingress Controller with Gateway API enabled (CRD v1.6.3). **Requires a LoadBalancer to expose the service.** | Traefik Chart 42.1.3 (v3.7.16) |
+| **Cert-Manager**  | Separate Zarf Component (Helm Chart)                           | Automates the provisioning and rotation of TLS certificates. **Industry-standard** for robust security. | Jetstack Chart v1.21.3 |
+| **Observability** | **Single** Zarf Component (`kube-prometheus-stack` Helm Chart) | Provides the core *metrics* and *dashboarding* capabilities: **Prometheus**, **Grafana**, and **Alertmanager**. | Chart 92.14.1 (Prometheus v3.15.1, Grafana 13.2.4) |
+| **Logging Stack** | Separate Zarf Component (Loki & Promtail Helm Chart)           | Provides resource-light log collection via **Promtail** and scalable, centralized log storage via **Loki**. | Loki 7.5.0 (v3.6.11), Promtail 6.17.1 (v3.5.1) |
 
 ## 📐 Architectural & Security Rationale
 

@@ -17,3 +17,6 @@ components:
   
   - name: harbor
     import: { path: ./harbor }
+
+  - name: argocd
+    import: { path: ./argocd }
