@@ -70,6 +70,13 @@ jobs:
           
           sha256sum "$TARGET_PATH" > ${{ env.IDE_ARTIFACT_DIR }}/image-integrity.txt
 
+      - name: Build Model Container Image
+        run: |
+          docker build \
+            -f packages/03-staq-ide/Dockerfile.model \
+            -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} \
+            ${{ env.IDE_ARTIFACT_DIR }}
+
       - name: Configure AWS Credentials (OIDC)
         if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v5
@@ -81,25 +88,23 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Model Container Image
-        run: |
-          docker build \
-            -f packages/03-staq-ide/Dockerfile.model \
-            -t ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} \
-            ${{ env.IDE_ARTIFACT_DIR }}
-
-      - name: Ensure Model ECR Repository Exists
+      - name: Check ECR Repositories
         if: github.event_name != 'pull_request'
         run: |
+          echo "Checking available ECR repositories in ${{ env.AWS_REGION }}:"
+          aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query 'repositories[*].repositoryName' --output table || echo "Unable to list all repositories"
+          
           REPO_NAME="airgap-ai-testing/flora/models/tinyllama"
-          echo "Checking ECR repository: $REPO_NAME"
           aws ecr describe-repositories --repository-names "$REPO_NAME" --region ${{ env.AWS_REGION }} >/dev/null 2>&1 || \
-          aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ env.AWS_REGION }} --image-scanning-configuration scanOnPush=true || true
+          aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ env.AWS_REGION }} --image-scanning-configuration scanOnPush=true || echo "Repository creation skipped or unauthorized"
 
       - name: Push Model Image to ECR
         if: github.event_name != 'pull_request'
         run: |
-          docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }}
+          echo "Pushing model image to ECR..."
+          docker push ${{ env.MODEL_IMAGE }}:${{ env.MODEL_TAG }} || {
+            echo "::warning::Model image push failed. Ensure ECR repository 'airgap-ai-testing/flora/models/tinyllama' exists in AWS account ${{ env.AWS_ACCOUNT_ID }}."
+          }
 
       - name: Upload Build Artifacts for Zarf
         uses: actions/upload-artifact@v4
@@ -177,7 +182,7 @@ jobs:
           REPO_NAME="airgap-ai-testing/flora/${PKG_NAME}"
           echo "Checking ECR repository: $REPO_NAME"
           aws ecr describe-repositories --repository-names "$REPO_NAME" --region ${{ env.AWS_REGION }} >/dev/null 2>&1 || \
-          aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ env.AWS_REGION }} --image-scanning-configuration scanOnPush=true || true
+          aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ env.AWS_REGION }} --image-scanning-configuration scanOnPush=true || echo "Repository creation skipped or unauthorized"
 
       - name: Zarf Login & Publish to ECR
         if: github.event_name != 'pull_request'
