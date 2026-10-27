@@ -1,5 +1,5 @@
 # Dockerfile.model
-FROM public.ecr.aws/docker/library/alpine:latest
+FROM alpine:3.21
 
 # We expect the CI to pass the scanned model file into the build context
 # and name it 'model.bin' or similar, but we will copy it to a standard
