@@ -35,11 +35,10 @@ package:
     # `zarf dev generate-config test.yaml` will show more
     # --------------------------------------------------------------------------
     registry_overrides:
-      "docker.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
-      "quay.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
-      "registry.k8s.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
-      "ghcr.io": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
-      "registry.gitlab.com": "973213517498.dkr.ecr.us-east-2.amazonaws.com/airgap-ai-testing/flora"
+      "docker.io": "ghcr.io/matteus8/flora"
+      "quay.io": "ghcr.io/matteus8/flora"
+      "registry.k8s.io": "ghcr.io/matteus8/flora"
+      "registry.gitlab.com": "ghcr.io/matteus8/flora"
 
   deploy:
     retries: 3

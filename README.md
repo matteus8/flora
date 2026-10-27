@@ -24,42 +24,31 @@ The platform uses GitHub Actions to automate the transition from source code to 
 
 1.  **Model Hardening**: (See `packages/03-staq-ide/Dockerfile.model`) The pipeline downloads raw GGUF models, performs a security scan, and wraps them into a hardened data-container image
 2.  **Package Creation**: Zarf bundles Kubernetes manifests, Helm charts, and images into OCI artifacts
-3.  **OCI Publishing**: Artifacts are pushed to Amazon ECR using OIDC keyless authentication
+3.  **OCI Publishing**: Artifacts are pushed directly to GitHub Container Registry (`ghcr.io/matteus8/flora`)
 
 ---
----
----
-
-> NOTE: For AWS ECR REPOS (or harbor or some other OCI registry - you must create these repos:
-    > - BASE_URL.com/airgap-ai-testing/flora/models/tinyllama,
-    > - BASE_URL.com/airgap-ai-testing/flora/staq-core,
-    > - BASE_URL.com/airgap-ai-testing/flora/staq-custom,
-    > - BASE_URL.com/airgap-ai-testing/flora/staq-factory,
-    > - BASE_URL.com/airgap-ai-testing/flora/staq-gitlab,
-    > - BASE_URL.com/airgap-ai-testing/flora/staq-ide
 
 ## Local Deployment Instructions
 
 ### Prerequisites
 *   [Zarf CLI](https://zarf.dev) installed locally
-*   Access to a Kubernetes cluster (K8's or K3's)
-*   (Optional) AWS CLI configured for ECR access
+*   Access to a Kubernetes cluster (K8s or K3s)
 
 ### 1. Authenticate to the Registry
 ```bash
-aws ecr get-login-password --region us-east-2 | zarf tools registry login <AWS_ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com -u AWS --password-stdin
+echo "<GITHUB_PAT>" | zarf tools registry login ghcr.io -u <GITHUB_USERNAME> --password-stdin
 ```
 
 ### 2. Deploy the Foundation (Core)
-The Core package must be deployed before any other services
+The Core package must be deployed before any other services:
 ```bash
-zarf package deploy oci://<AWS_URL>/airgap-ai-testing/flora/staq-core:<VERSION> --confirm
+zarf package deploy oci://ghcr.io/matteus8/flora/staq-core:<VERSION> --confirm
 ```
 
 ### 3. Deploy the AI Workspace (IDE)
-Includes the hardened AI model and web-based VS Code environment.
+Includes the hardened AI model and web-based VS Code environment:
 ```bash
-zarf package deploy oci://<AWS_URL>/airgap-ai-testing/flora/staq-ide:<VERSION> --confirm
+zarf package deploy oci://ghcr.io/matteus8/flora/staq-ide:<VERSION> --confirm
 ```
 
 ---
@@ -70,8 +59,8 @@ To move this platform into a disconnected environment:
 
 1.  **Pull the artifacts** on a connected machine:
     ```bash
-    zarf package pull oci://<AWS_URL>/airgap-ai-testing/flora/staq-core:<VERSION>
-    zarf package pull oci://<AWS_URL>/airgap-ai-testing/flora/staq-ide:<VERSION>
+    zarf package pull oci://ghcr.io/matteus8/flora/staq-core:<VERSION>
+    zarf package pull oci://ghcr.io/matteus8/flora/staq-ide:<VERSION>
     ```
 2.  **Transfer** the resulting `.tar.zst` files to the airgapped network
 3.  **Initialize** the airgap cluster:
